@@ -23,15 +23,12 @@ def process_thread(link, pool, futures):
     
     # download OP webm
     pool.submit(download, 'http:' + soup.find('div', {'class': 'postContainer opContainer'}).find('a')['href'], thread_dir)
-    #download('http:' + soup.find('div', {'class': 'postContainer opContainer'}).find('a', {'class': 'fileThumb'})['href'], thread_dir)
 
     # go through all posts and download
     for post in soup.findAll('div', {'class': 'postContainer replyContainer'}):
         media = post.find('a', {'class': 'fileThumb'})
         if media != None:
             # start thread
-            #download('http:' + webm['href'], thread_dir)
-            # TODO: figure out why thread broke
             futures.append(pool.submit(download, 'http:' + media['href'], thread_dir))
 
 
