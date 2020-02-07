@@ -29,19 +29,20 @@ def process_thread(link, pool, futures):
         media = post.find('a', {'class': 'fileThumb'})
         if media != None:
             # start thread
-            futures.append(pool.submit(download, 'http:' + media['href'], thread_dir))
+            fname = post.find('div', {'class': 'fileText'}).find('a').text
+            futures.append(pool.submit(download, 'http:' + media['href'], thread_dir, fname))
 
 
-def download(link, path):
+def download(link, path, name):
     # writes webm to file
     r = requests.get(link, stream=True)
     if r.status_code == 200:
-        with open(os.path.join(path, link.rsplit('/', 1)[1]), 'wb') as f:
+        with open(os.path.join(path, name), 'wb') as f:
             for chunk in r:
                 f.write(chunk)
-        print(f'{link} downloaded')
+        print(f'{name} downloaded')
     else:
-        print(f'Error downloading {link}')
+        print(f'Error downloading {link}, code: {r.status_code}')
 
 if __name__ == '__main__':
     print('Downloading thread...')
@@ -54,6 +55,6 @@ if __name__ == '__main__':
                     if f.exception() != None:
                         print(f.exception())
                     futures.pop(idx)
-            sleep(1)
+            sleep(0.25)
 
     print('Done!')
