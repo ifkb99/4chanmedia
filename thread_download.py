@@ -12,7 +12,7 @@ def process_thread(link, pool, futures):
     soup = bs(html, 'html.parser')
 
     # make folder titled after thread
-    thread_dir = os.path.join(os.getcwd(), soup.find('span', {'class': 'subject'}).text)
+    thread_dir = os.path.join(os.getcwd(), soup.find('span', {'class': 'subject'}).text.replace('/', ''))
     if not os.path.exists(thread_dir):
         os.makedirs(thread_dir)
         print(thread_dir + ' created!')
@@ -48,10 +48,10 @@ if __name__ == '__main__':
     with TPE() as pool:
         futures = []
         process_thread(argv[1], pool, futures)
-        while not futures == []:
+        while futures != []:
             for idx, f in enumerate(futures):
                 if f.done():
-                    if not f.exception() == None:
+                    if f.exception() != None:
                         print(f.exception())
                     futures.pop(idx)
             sleep(1)
