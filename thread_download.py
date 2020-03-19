@@ -12,7 +12,12 @@ def process_thread(link, pool, futures):
     soup = bs(html, 'html.parser')
 
     # make folder titled after thread
-    thread_dir = os.path.join(os.getcwd(), soup.find('span', {'class': 'subject'}).text.replace('/', ''))
+    thread_name = ''
+    if len(argv) == 2:
+        thread_name = soup.find('span', {'class': 'subject'}).text.replace('/', '')
+    else:
+        thread_name = argv[2]
+    thread_dir = os.path.join(os.getcwd(), thread_name)
     if not os.path.exists(thread_dir):
         os.makedirs(thread_dir)
         print(thread_dir + ' created!')
