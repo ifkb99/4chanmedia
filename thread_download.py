@@ -22,9 +22,12 @@ def process_thread(link, pool, futures):
         os.makedirs(thread_dir)
         print(thread_dir + ' created!')
     else:
-        print(f'{thread_dir} already exists')
-        # TODO: pick up from where downlaoding left off in future
-        quit(1)
+        while True:
+            choice = input(f'{thread_dir} already exists, check for new media? (y/n)\n')
+            if choice == 'y':
+                break
+            elif choice == 'n':
+                quit(1)
     
     # download OP webm
     pool.submit(download, 'http:' + soup.find('div', {'class': 'postContainer opContainer'}).find('a')['href'], thread_dir)
@@ -39,15 +42,20 @@ def process_thread(link, pool, futures):
 
 
 def download(link, path, name):
-    # writes webm to file
-    r = requests.get(link, stream=True)
-    if r.status_code == 200:
-        with open(os.path.join(path, name), 'wb') as f:
-            for chunk in r:
-                f.write(chunk)
-        print(f'{name} downloaded')
+    # check if file exists
+    filename = os.path.join(path, name)
+    if os.path.isfile(filename):
+        print(f'{name} already exists!')
     else:
-        print(f'Error downloading {link}, code: {r.status_code}')
+        # writes webm to file
+        r = requests.get(link, stream=True)
+        if r.status_code == 200:
+            with open(filename, 'wb') as f:
+                for chunk in r:
+                    f.write(chunk)
+            print(f'{name} downloaded')
+        else:
+            print(f'Error downloading {link}, code: {r.status_code}')
 
 if __name__ == '__main__':
     print('Downloading thread...')
