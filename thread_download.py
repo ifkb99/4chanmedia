@@ -8,13 +8,17 @@ from time import sleep
 
 def process_thread(link, pool, futures):
     # TODO: hash webms to see if already downloaded
-    html = requests.get(link).text
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+    html = requests.get(link, headers={'User-Agent' : user_agent}).text
     soup = bs(html, 'html.parser')
 
     # make folder titled after thread
     thread_name = ''
     if len(argv) == 2:
-        thread_name = soup.find('span', {'class': 'subject'}).text.replace('/', '')
+        if 'archived.moe' in link:
+            thread_name = soup.find('h2', {'class': 'post_title'}).text.replace('/', '')
+        else:
+            thread_name = soup.find('span', {'class': 'subject'}).text.replace('/', '')
     else:
         thread_name = argv[2]
     thread_dir = os.path.join(os.getcwd(), thread_name)
@@ -29,16 +33,20 @@ def process_thread(link, pool, futures):
             elif choice == 'n':
                 quit(1)
     
-    # download OP webm
-    pool.submit(download, 'http:' + soup.find('div', {'class': 'postContainer opContainer'}).find('a')['href'], thread_dir)
+    if 'archived.moe' not in link:
+        # download OP webm
+        pool.submit(download, 'http:' + soup.find('div', {'class': 'postContainer opContainer'}).find('a')['href'], thread_dir)
 
-    # go through all posts and download
-    for post in soup.findAll('div', {'class': 'postContainer replyContainer'}):
-        media = post.find('a', {'class': 'fileThumb'})
-        if media != None:
-            # start thread
-            fname = post.find('div', {'class': 'fileText'}).find('a').text
-            futures.append(pool.submit(download, 'http:' + media['href'], thread_dir, fname))
+        # go through all posts and download
+        for post in soup.findAll('div', {'class': 'postContainer replyContainer'}):
+            media = post.find('a', {'class': 'fileThumb'})
+            if media != None:
+                # start thread
+                fname = post.find('div', {'class': 'fileText'}).find('a').text
+                futures.append(pool.submit(download, 'http:' + media['href'], thread_dir, fname))
+    else:  # this sux but works
+        for idx, post in enumerate(soup.findAll('a', {'class': 'thread_image_link'})):
+            futures.append(pool.submit(download, post['href'], thread_dir, str(idx) + '.' +post['href'].rsplit('.', 1)[1]))
 
 
 def download(link, path, name):
