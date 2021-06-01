@@ -15,7 +15,7 @@ def process_thread(link, pool, futures):
     # make folder titled after thread
     thread_name = ''
     if len(argv) == 2:
-        if 'archived.moe' in link:
+        if '.moe' in link:
             thread_name = soup.find('h2', {'class': 'post_title'}).text.replace('/', '')
         else:
             thread_name = soup.find('span', {'class': 'subject'}).text.replace('/', '')
@@ -33,7 +33,7 @@ def process_thread(link, pool, futures):
             elif choice == 'n':
                 quit(1)
     
-    if 'archived.moe' not in link:
+    if '.moe' not in link:
         # download OP webm
         pool.submit(download, 'http:' + soup.find('div', {'class': 'postContainer opContainer'}).find('a')['href'], thread_dir)
 
