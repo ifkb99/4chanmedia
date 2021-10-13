@@ -2,6 +2,7 @@
 Requires [Python 3](https://www.python.org/downloads/), preferably at least 3.7. Make sure you check the add to $PATH box when installing
 ## Simple CL Use
 ```python thread_downloader.py THREAD_LINK (optional: folder name)```
+
 You may have to type python3 or py instead of python. Try all three before you ask for help
 
 ## How to use
